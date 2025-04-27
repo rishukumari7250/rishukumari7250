@@ -1,1 +1,285 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import warnings
+warnings.filterwarnings('ignore')
+df = pd.read_csv("application_data.csv")
+df.head()
+df.shape
+df.info('all')
+df.info('all')
+null_val
+col_null = df.isnull().sum()
+col_null= col_null[col_null>0.4*(len(col_null))]
+len(col_null)
+col_null = list(col_null[col_null.values>=0.4].index)
+df.drop(labels= col_null,axis =1, inplace= True)
+df.isnull().sum()/len(df)*100
+df.isnull().sum()
+df.isnull().sum()
+null_treatment = df['AMT_ANNUITY'].median()
+df.loc[df['AMT_ANNUITY'].isnull(),'AMT_ANNUITY'] = null_treatment
+df.isnull().sum()
+emptyrow = df.isnull().sum(axis=1)
+emptyrow = list(emptyrow[emptyrow.values>=0.4*len(df)].index)
+df.drop(labels=emptyrow, axis=0,inplace=True)
+print(len(emptyrow))
+
+unwant_col = ['FLAG_MOBIL', 'FLAG_EMP_PHONE', 'FLAG_WORK_PHONE', 'FLAG_CONT_MOBILE',
+       'FLAG_PHONE', 'FLAG_EMAIL','REGION_RATING_CLIENT','REGION_RATING_CLIENT_W_CITY','FLAG_EMAIL','CNT_FAM_MEMBERS', 'REGION_RATING_CLIENT',
+       'REGION_RATING_CLIENT_W_CITY','DAYS_LAST_PHONE_CHANGE', 'FLAG_DOCUMENT_2', 'FLAG_DOCUMENT_3','FLAG_DOCUMENT_4', 'FLAG_DOCUMENT_5', 'FLAG_DOCUMENT_6',
+       'FLAG_DOCUMENT_7', 'FLAG_DOCUMENT_8', 'FLAG_DOCUMENT_9','FLAG_DOCUMENT_10', 'FLAG_DOCUMENT_11', 'FLAG_DOCUMENT_12',
+       'FLAG_DOCUMENT_13', 'FLAG_DOCUMENT_14', 'FLAG_DOCUMENT_15','FLAG_DOCUMENT_16', 'FLAG_DOCUMENT_17', 'FLAG_DOCUMENT_18',
+       'FLAG_DOCUMENT_19', 'FLAG_DOCUMENT_20', 'FLAG_DOCUMENT_21']
+
+df.drop(labels=unwant_col,axis=1, inplace=True)
+df[df['CODE_GENDER']=='XNA'].shape
+df[df['ORGANIZATION_TYPE']=='XNA'].shape
+df['CODE_GENDER'].value_counts()
+df.loc[df['CODE_GENDER']=='XNA','CODE_GENDER']='F'
+df['CODE_GENDER'].value_counts()
+df['ORGANIZATION_TYPE'].describe()
+df=df.drop(df.loc[df['ORGANIZATION_TYPE']=='XNA'].index)
+df[df['ORGANIZATION_TYPE']=='XNA'].shape
+numeric_columns = ['TARGET','CNT_CHILDREN','AMT_INCOME_TOTAL','AMT_CREDIT','AMT_ANNUITY','REGION_POPULATION_RELATIVE','DAYS_BIRTH',
+                'DAYS_EMPLOYED','DAYS_REGISTRATION','DAYS_ID_PUBLISH','HOUR_APPR_PROCESS_START','LIVE_REGION_NOT_WORK_REGION', 'REG_CITY_NOT_LIVE_CITY',
+       'REG_CITY_NOT_WORK_CITY', 'LIVE_CITY_NOT_WORK_CITY']
+
+df[numeric_columns]=df[numeric_columns].apply(pd.to_numeric)
+df.head(5)
+
+bins = [0,25000,50000,75000,100000,125000,150000,175000,200000,225000,250000,275000,300000,325000,350000,375000,400000,425000,450000,475000,500000,10000000000]
+slot = ['0-25000', '25000-50000','50000-75000','75000,100000','100000-125000', '125000-150000', '150000-175000','175000-200000',
+       '200000-225000','225000-250000','250000-275000','275000-300000','300000-325000','325000-350000','350000-375000',
+       '375000-400000','400000-425000','425000-450000','450000-475000','475000-500000','500000 and above']
+
+df['AMT_INCOME_RANGE']=pd.cut(df['AMT_INCOME_TOTAL'],bins,labels=slot)
+
+bins = [0,150000,200000,250000,300000,350000,400000,450000,500000,550000,600000,650000,700000,750000,800000,850000,900000,1000000000]
+slots = ['0-150000', '150000-200000','200000-250000', '250000-300000', '300000-350000', '350000-400000','400000-450000',
+        '450000-500000','500000-550000','550000-600000','600000-650000','650000-700000','700000-750000','750000-800000',
+        '800000-850000','850000-900000','900000 and above']
+
+df['AMT_CREDIT_RANGE']=pd.cut(df['AMT_CREDIT'],bins=bins,labels=slots)
+
+target0_df=df.loc[df["TARGET"]==0]
+target1_df=df.loc[df["TARGET"]==1]
+round(len(target0_df)/len(target1_df),2)
+def uniplot(df,col,title,hue =None):
+
+    sns.set_style('whitegrid')
+    sns.set_context('talk')
+    plt.rcParams["axes.labelsize"] = 20
+    plt.rcParams['axes.titlesize'] = 22
+    plt.rcParams['axes.titlepad'] = 30
+
+
+    temp = pd.Series(data = hue)
+    fig, ax = plt.subplots()
+    width = len(df[col].unique()) + 7 + 4*len(temp.unique())
+    fig.set_size_inches(width , 8)
+    plt.xticks(rotation=45)
+    plt.yscale('log')
+    plt.title(title)
+    ax = sns.countplot(data = df, x= col, order=df[col].value_counts().index,hue = hue,palette='YlOrRd_r')
+
+    plt.show()
+def uniplot(df,col,title,hue =None):
+
+    sns.set_style('whitegrid')
+    sns.set_context('talk')
+    plt.rcParams["axes.labelsize"] = 20
+    plt.rcParams['axes.titlesize'] = 22
+    plt.rcParams['axes.titlepad'] = 30
+
+
+    temp = pd.Series(data = hue)
+    fig, ax = plt.subplots()
+    width = len(df[col].unique()) + 7 + 4*len(temp.unique())
+    fig.set_size_inches(width , 8)
+    plt.xticks(rotation=45)
+    plt.yscale('log')
+    plt.title(title)
+    ax = sns.countplot(data = df, x= col, order=df[col].value_counts().index,hue = hue,palette='YlOrRd_r')
+
+    plt.show()
+uniplot(target0_df,col='AMT_INCOME_RANGE',title='Distribution of income range',hue='CODE_GENDER')
+uniplot(target0_df,col='NAME_INCOME_TYPE',title='Distribution of Income type',hue='CODE_GENDER')
+uniplot(target0_df,col='NAME_CONTRACT_TYPE',title='Distribution of contract type',hue='CODE_GENDER')
+sns.set_style('whitegrid')
+sns.set_context('talk')
+plt.figure(figsize=(15,30))
+plt.rcParams["axes.labelsize"] = 20
+plt.rcParams['axes.titlesize'] = 22
+plt.rcParams['axes.titlepad'] = 30
+
+plt.title("Distribution of Organization type for target - 0")
+
+plt.xticks(rotation=90)
+plt.xscale('log')
+
+sns.countplot(data=target0_df,y='ORGANIZATION_TYPE',order=target0_df['ORGANIZATION_TYPE'].value_counts().index,palette='YlOrRd_r')
+
+plt.show()
+uniplot(target1_df,col='AMT_INCOME_RANGE',title='Distribution of income range',hue='CODE_GENDER')
+uniplot(target1_df,col='NAME_INCOME_TYPE',title='Distribution of Income type',hue='CODE_GENDER')
+uniplot(target1_df,col='NAME_CONTRACT_TYPE',title='Distribution of contract type',hue='CODE_GENDER')
+sns.set_style('whitegrid')
+sns.set_context('talk')
+plt.figure(figsize=(15,30))
+plt.rcParams["axes.labelsize"] = 20
+plt.rcParams['axes.titlesize'] = 22
+plt.rcParams['axes.titlepad'] = 30
+
+plt.title("Distribution of Organization type for target - 1")
+
+plt.xticks(rotation=90)
+plt.xscale('log')
+
+sns.countplot(data=target0_df,y='ORGANIZATION_TYPE',order=target0_df['ORGANIZATION_TYPE'].value_counts().index,palette='YlOrRd_r')
+
+plt.show()
+target0_corr=target0_df.select_dtypes(include=np.number).iloc[0:,2:] # Select only numeric columns
+target1_corr=target1_df.select_dtypes(include=np.number).iloc[0:,2:] # Select only numeric columns
+
+target0=target0_corr.corr(method='spearman')
+target1=target1_corr.corr(method='spearman')
+target0
+target1
+def targets_corr(data,title):
+    plt.figure(figsize=(15, 10))
+    plt.rcParams['axes.titlesize'] = 25
+    plt.rcParams['axes.titlepad'] = 70
+
+# heatmap with a color map of choice
+
+
+    sns.heatmap(data, cmap="RdYlGn",annot=False)
+
+    plt.title(title)
+    plt.yticks(rotation=0)
+    plt.show()
+targets_corr(data=target0,title='Correlation for target 0')
+targets_corr(data=target1,title='Correlation for target 1')
+def univariate_numerical(data,col,title):
+    sns.set_style('whitegrid')
+    sns.set_context('talk')
+    plt.rcParams["axes.labelsize"] = 20
+    plt.rcParams['axes.titlesize'] = 22
+    plt.rcParams['axes.titlepad'] = 30
+
+    plt.title(title)
+    plt.yscale('log')
+    sns.boxplot(data =target1_df, y= col)
+    plt.show()
+univariate_numerical(data=target0_df,col='AMT_INCOME_TOTAL',title='Distribution of income amount')
+univariate_numerical(data=target0_df,col='AMT_CREDIT',title='Distribution of credit amount')
+univariate_numerical(data=target1_df,col='AMT_ANNUITY',title='Distribution of Annuity amount')
+plt.figure(figsize=(16,12))
+plt.xticks(rotation=45)
+sns.boxplot(data =target0_df, x='NAME_EDUCATION_TYPE',y='AMT_CREDIT', hue ='NAME_FAMILY_STATUS',orient='v')
+plt.title('Credit Amount vs Education Status')
+plt.show()
+plt.figure(figsize=(16,12))
+plt.xticks(rotation=45)
+plt.yscale('log')
+sns.boxplot(data =target0_df, x='NAME_EDUCATION_TYPE',y='AMT_INCOME_TOTAL', hue ='NAME_FAMILY_STATUS',orient='v')
+plt.title('Income amount vs Education Status')
+plt.show()
+plt.figure(figsize=(16,12))
+plt.xticks(rotation=45)
+sns.boxplot(data =target0_df, x='NAME_EDUCATION_TYPE',y='AMT_CREDIT', hue ='NAME_FAMILY_STATUS',orient='v')
+plt.title('Credit Amount vs Education Status')
+plt.show()
+plt.figure(figsize=(16,12))
+plt.xticks(rotation=45)
+plt.yscale('log')
+sns.boxplot(data =target0_df, x='NAME_EDUCATION_TYPE',y='AMT_INCOME_TOTAL', hue ='NAME_FAMILY_STATUS',orient='v')
+plt.title('Income amount vs Education Status')
+plt.show()
+df1=pd.read_csv("previous_application.csv")
+df1.head()
+emptycol1=df1.isnull().sum()
+emptycol1=emptycol1[emptycol1.values>(0.4*len(emptycol1))]
+len(emptycol1)
+emptycol1 = list(emptycol1[emptycol1.values>=0.4].index)
+df1.drop(labels=emptycol1,axis=1,inplace=True)
+
+df1.shape
+df1=df1.drop(df1[df1['NAME_CASH_LOAN_PURPOSE']=='XNA'].index)
+df1=df1.drop(df1[df1['NAME_CASH_LOAN_PURPOSE']=='XNA'].index)
+df1=df1.drop(df1[df1['NAME_CASH_LOAN_PURPOSE']=='XAP'].index)
+
+df1.shape
+df1=df1.drop(df1[df1['NAME_CASH_LOAN_PURPOSE']=='XNA'].index)
+df1=df1.drop(df1[df1['NAME_CASH_LOAN_PURPOSE']=='XNA'].index)
+df1=df1.drop(df1[df1['NAME_CASH_LOAN_PURPOSE']=='XAP'].index)
+
+df1.shape
+new_df=pd.merge(left=df,right=df1,how='inner',on='SK_ID_CURR',suffixes=('_x','_y'))
+new_df.head()
+new_df1 = new_df.rename({'NAME_CONTRACT_TYPE_' : 'NAME_CONTRACT_TYPE','AMT_CREDIT_':'AMT_CREDIT','AMT_ANNUITY_':'AMT_ANNUITY',
+                         'WEEKDAY_APPR_PROCESS_START_' : 'WEEKDAY_APPR_PROCESS_START',
+                         'HOUR_APPR_PROCESS_START_':'HOUR_APPR_PROCESS_START','NAME_CONTRACT_TYPEx':'NAME_CONTRACT_TYPE_PREV',
+                         'AMT_CREDITx':'AMT_CREDIT_PREV','AMT_ANNUITYx':'AMT_ANNUITY_PREV',
+                         'WEEKDAY_APPR_PROCESS_STARTx':'WEEKDAY_APPR_PROCESS_START_PREV',
+                         'HOUR_APPR_PROCESS_STARTx':'HOUR_APPR_PROCESS_START_PREV'}, axis=1)
+new_df1.drop(['SK_ID_CURR', 'REG_REGION_NOT_LIVE_REGION',
+              'REG_REGION_NOT_WORK_REGION', 'LIVE_REGION_NOT_WORK_REGION', 'REG_CITY_NOT_LIVE_CITY',
+              'REG_CITY_NOT_WORK_CITY', 'LIVE_CITY_NOT_WORK_CITY',
+              'FLAG_LAST_APPL_PER_CONTRACT', 'NFLAG_LAST_APPL_IN_DAY'], axis=1, inplace=True)
+sns.set_style('whitegrid')
+sns.set_context('talk')
+
+plt.figure(figsize=(15,30))
+plt.rcParams["axes.labelsize"] = 20
+plt.rcParams['axes.titlesize'] = 22
+plt.rcParams['axes.titlepad'] = 30
+plt.xticks(rotation=90)
+plt.xscale('log')
+plt.title('Distribution of contract status with purposes')
+ax = sns.countplot(data = new_df1, y= 'NAME_CASH_LOAN_PURPOSE',
+                   order=new_df1['NAME_CASH_LOAN_PURPOSE'].value_counts().index,hue = 'NAME_CONTRACT_STATUS',palette='YlOrRd_r')
+sns.set_style('whitegrid')
+sns.set_context('talk')
+
+plt.figure(figsize=(15,30))
+plt.rcParams["axes.labelsize"] = 20
+plt.rcParams['axes.titlesize'] = 22
+plt.rcParams['axes.titlepad'] = 30
+plt.xticks(rotation=90)
+plt.xscale('log')
+plt.title('Distribution of purposes with target ')
+ax = sns.countplot(data = new_df1, y= 'NAME_CASH_LOAN_PURPOSE',
+                   order=new_df1['NAME_CASH_LOAN_PURPOSE'].value_counts().index,hue = 'TARGET',palette='YlOrRd_r')
+
+plt.figure(figsize=(16,12))
+plt.xticks(rotation=90)
+plt.yscale('log')
+sns.boxplot(data =new_df1, x='NAME_CASH_LOAN_PURPOSE',hue='NAME_INCOME_TYPE',y='AMT_CREDIT_x',orient='v')
+plt.title('Prev Credit amount vs Loan Purpose')
+plt.show()
+plt.figure(figsize=(16,12))
+plt.xticks(rotation=90)
+sns.barplot(data =new_df1, y='AMT_CREDIT_y',hue='TARGET',x='NAME_HOUSING_TYPE')
+plt.title('Prev Credit amount vs Housing type')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
